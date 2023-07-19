@@ -2,8 +2,7 @@ import contactsService from "../models/contacts.js";
 import {ctrlWrapper} from "../decorators/index.js";
 import { HttpError } from "../helpers/index.js";
 
-
-  const getAll = async (req, res) => {
+const getAll = async (req, res) => {
         const result = await contactsService.listContacts();
         res.json(result);
 }
