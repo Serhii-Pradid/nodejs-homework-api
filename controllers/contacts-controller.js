@@ -1,8 +1,14 @@
-//import contactsService from "../models/contacts.js";
-
 import Contact from "../models/contacts.js";
+
 import {ctrlWrapper} from "../decorators/index.js";
+
 import { HttpError } from "../helpers/index.js";
+
+import fs from "fs/promises";
+
+import path from "path";
+
+const avatarPath = path.resolve("public", "avatars");
 
 const getAll = async (req, res) => {
         const {_id: owner} = req.user;
@@ -14,7 +20,7 @@ const getAll = async (req, res) => {
 
 const getById =  async (req, res) => {
        const {contactId} = req.params;
-       const result = await Contact.findById(contactId);
+              const result = await Contact.findById(contactId);
        if(!result) {
          throw HttpError(404, `Movie with id=${contactId} not found`);
     }
@@ -24,8 +30,12 @@ const getById =  async (req, res) => {
 
  const add = async (req, res) => {
       const {_id: owner} = req.user;
-       const result = await Contact.create({...req.body, owner})
-       res.status(201).json(result)
+      const { path: oldPath, filename } = req.file;
+      const newPath = path.join(avatarPath, filename);
+      await fs.rename(oldPath, newPath);
+      const avatar = path.join("avatars", filename)
+      const result = await Contact.create({...req.body, avatar, owner})
+      res.status(201).json(result)
     }
       
 
