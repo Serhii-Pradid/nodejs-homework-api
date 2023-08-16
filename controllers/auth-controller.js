@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 
 import jwt from "jsonwebtoken";
 
+import { nanoid } from "nanoid";
+
 import fs from "fs/promises";
 
 import path from "path";
@@ -10,7 +12,7 @@ import User from "../models/user.js";
 
 import {ctrlWrapper} from "../decorators/index.js";
 
-import { HttpError } from "../helpers/index.js";
+import { HttpError, sendEmail } from "../helpers/index.js";
 
 import { request } from "express";
 
@@ -18,7 +20,7 @@ import gravatar from "gravatar";
 
 import Jimp from "jimp";
 
-const {JWT_SECRET} = process.env;
+const {JWT_SECRET, BASE_URL} = process.env;
 
 const avatarPath = path.resolve("public", "avatars");
 
@@ -32,8 +34,17 @@ const register = async(req, res) => {
    }
 
     const hashPassword = await bcrypt.hash(password, 10);
+    const verificationToken = nanoid();
 
     const newUser = await User.create({...req.body, avatarURL, password: hashPassword});
+
+    const verifyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a href="${BASE_URL}/api/auth/verify/${verificationToken}" target="_blank"> Click verify email </a>`,
+    }
+
+    await sendEmail(verifyEmail);
 
     res.status(201).json({
         email: newUser.email,
