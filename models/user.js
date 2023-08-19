@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 import { handleSaveError, validateAtUpdate } from "./hooks.js";
 
 import { emailRegexp } from "../constans/user-constans.js";
+import  required  from "joi";
 
 const userSchema = new Schema({
 
@@ -22,6 +23,15 @@ const userSchema = new Schema({
           enum: ["starter", "pro", "business"],
           default: "starter"
         },
+        verify: {
+          type: Boolean,
+          default: false,
+        },
+        verificationToken: {
+          type: String,
+          //required: [true, 'Verify token is required']
+        },
+          
         token: String,
         avatarURL: String,
 
